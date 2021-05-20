@@ -8,7 +8,8 @@ Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://j
 
 # Dr Praveen- portfolio
 
-Hello world!, I am **Dr Praveen**, a doctor by profession and Business analyst by passion experienced in solving the real-life problems and providing solutions that help improve the healthcare outcomes.
+Hello world!, I am **Dr Praveen**, a doctor by profession and Business analyst by passion experienced in solving the real-life problems 
+and providing solutions that help improve the healthcare outcomes.
 
 🔭 I’m currently working on Healthcare analytics.
 🌱 I’m currently learning Data analysis, Python programming

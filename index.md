@@ -22,9 +22,6 @@ Hello world!, I am **Dr Praveen**, a doctor by profession and Business analyst b
 📫 How to reach me: mail me @ drpraveen.ganapathiraju@gmail.com
 😄 Pronouns: He/Him
 ⚡ Fun fact: Doctor working in healthcare IT and experienced in Low-code, No-code development.
-# Header 1
-## Header 2
-### Header 3
 
 ```
 

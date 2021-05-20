@@ -9,21 +9,23 @@ Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://j
 Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
 ```markdown
-Syntax highlighted code block
 
+# Dr Praveen- portfolio
+
+Hello world!, I am **Dr Praveen**, a doctor by profession and Business analyst by passion experienced in solving the real-life problems and providing solutions that help improve the healthcare outcomes.
+
+🔭 I’m currently working on Healthcare analytics.
+🌱 I’m currently learning Data analysis, Python programming
+👯 I’m looking to collaborate on data analysis, pythom programming, Use of AI in healthcare
+🤔 I’m looking for help with data analysis, data visualization, python programming, healthcare analytics...
+💬 Ask me about US healthcare, Business analysis, data analysis using basic excel...
+📫 How to reach me: mail me @ drpraveen.ganapathiraju@gmail.com
+😄 Pronouns: He/Him
+⚡ Fun fact: Doctor working in healthcare IT and experienced in Low-code, No-code development.
 # Header 1
 ## Header 2
 ### Header 3
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
 ```
 
 For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).

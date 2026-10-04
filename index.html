@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#081018" />
+<meta name="description" content="TRUST NO ONE — a real-time social deduction game for 4–10 players." />
+<title>TRUST NO ONE</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{--bg:#071018;--panel:#0d1922;--panel2:#11222e;--border:#233745;--text:#eaf6ff;--muted:#91a7b7;--cyan:#54e4ff;--green:#66e7a5;--red:#ff6b7a;--amber:#ffcc67;--purple:#aa91ff;--shadow:0 20px 60px rgba(0,0,0,.4)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(circle at 20% -10%,#183142 0,#071018 42%,#04090e 100%);color:var(--text)}
+button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}.app{min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid var(--border);background:rgba(4,9,14,.72);backdrop-filter:blur(16px);position:sticky;top:0;z-index:10}.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.18em;font-size:14px}.brand-mark{width:30px;height:30px;border:1px solid #4b6a79;border-radius:9px;display:grid;place-items:center;color:var(--cyan);background:linear-gradient(135deg,#173344,#0b1720);box-shadow:0 0 24px rgba(84,228,255,.12)}
+.badge{padding:7px 10px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:12px}.main{width:min(1180px,100%);margin:0 auto;padding:28px 18px 50px;flex:1}.hero{text-align:center;padding:40px 0 18px}.eyebrow{color:var(--cyan);font-weight:800;font-size:12px;letter-spacing:.2em;text-transform:uppercase}.hero h1{font-size:clamp(44px,9vw,92px);line-height:.92;margin:12px 0;background:linear-gradient(180deg,#fff,#9dc0d2 75%,#668696);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.05em}.hero p{max-width:700px;margin:0 auto;color:var(--muted);font-size:16px;line-height:1.6}.tagline{margin-top:16px;font-size:14px;color:#d8e7ef}
+.card{background:linear-gradient(180deg,rgba(17,34,46,.92),rgba(8,18,25,.94));border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow)}.landing-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:24px}.card.pad{padding:24px}.card h2,.card h3{margin:0 0 10px}.muted{color:var(--muted)}
+.form-row{display:flex;gap:10px}.input,.select,.textarea{width:100%;background:#071018;border:1px solid #2a414f;color:var(--text);padding:13px 14px;border-radius:12px;outline:none}.input:focus,.select:focus,.textarea:focus{border-color:#4d7c8d;box-shadow:0 0 0 3px rgba(84,228,255,.09)}.btn{border:1px solid #35515e;background:#142a36;color:#eaf6ff;padding:12px 16px;border-radius:12px;font-weight:800;transition:.16s transform,.16s background}.btn:hover{transform:translateY(-1px);background:#183542}.btn.primary{background:linear-gradient(135deg,#2d90a8,#4ad4ec);border-color:#61d9f1;color:#061016}.btn.danger{background:#3a1820;border-color:#6d2f3a;color:#ffb4be}.btn.green{background:#123a2b;border-color:#285f48;color:#9af0c5}.btn.amber{background:#3a2d16;border-color:#6e5729;color:#ffe0a1}.btn.purple{background:#241a3e;border-color:#4f3a79;color:#d5c9ff}.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.feature-list{display:grid;gap:12px;margin-top:18px}.feature{display:flex;gap:12px;align-items:flex-start}.feature .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#10222d;border:1px solid var(--border)}.feature strong{display:block;margin-bottom:3px;font-size:13px}.feature span{font-size:12px;color:var(--muted);line-height:1.45}.role-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.role{padding:12px;border:1px solid var(--border);background:#09151d;border-radius:14px}.role b{display:block;font-size:13px;margin-bottom:4px}.role small{color:var(--muted);line-height:1.4}.note{font-size:12px;color:#7f97a7;line-height:1.5;margin-top:12px}
+#toast-root{position:fixed;right:18px;bottom:18px;z-index:50;display:grid;gap:10px;width:min(360px,calc(100vw - 36px))}.toast{padding:13px 15px;border-radius:14px;border:1px solid #2d4b5b;background:#0a151d;box-shadow:var(--shadow);font-size:13px}.toast.good{border-color:#2d5f4b}.toast.bad{border-color:#723441}.toast.warn{border-color:#6b572f}
+.lobby{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.room-code{font-size:52px;letter-spacing:.16em;font-weight:900;color:var(--cyan);margin:5px 0 4px;text-shadow:0 0 30px rgba(84,228,255,.18)}.qrhint{font-size:12px;color:var(--muted)}.players{display:grid;gap:8px;margin-top:16px}.player-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border:1px solid var(--border);background:#09151d;border-radius:12px}.player-main{display:flex;gap:10px;align-items:center}.avatar{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#142c39;font-weight:900;font-size:13px}.you{border-color:#3f7384}.hostdot{font-size:10px;color:var(--amber);border:1px solid #5a4826;padding:3px 6px;border-radius:999px}
+.game-shell{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,.8fr);gap:18px}.mission-header{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:stretch}.mission-title h1{margin:0 0 6px;font-size:30px}.timer{font-variant-numeric:tabular-nums;font-weight:900;font-size:30px;color:var(--cyan);text-align:right}.timer.danger{color:var(--red);animation:pulse 1s infinite}.objective{color:var(--muted);line-height:1.45}.meters{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.meter{padding:12px;border:1px solid var(--border);border-radius:14px;background:#09151d}.meter-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px}.bar{height:9px;background:#0a1218;border:1px solid #23313a;border-radius:999px;overflow:hidden}.fill{height:100%;width:0;transition:width .3s ease}.fill.oxygen{background:linear-gradient(90deg,#4ad7ff,#8ef0ff)}.fill.repair{background:linear-gradient(90deg,#56e49d,#8df7bf)}.systems{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.system{padding:13px;border:1px solid var(--border);border-radius:14px;background:#09151d;min-height:92px}.system .sicon{font-size:19px}.system b{display:block;margin:7px 0 3px;font-size:12px}.system small{color:var(--muted)}.system.bad{border-color:#6d3440;background:#1b1014}.system.warn{border-color:#6d582d;background:#1a150b}
+.center-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.15em;color:#7e9baa;margin-bottom:9px}.actions{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.action{min-height:74px;text-align:left;padding:12px;border:1px solid var(--border);border-radius:14px;background:#09151d;color:var(--text)}.action:hover{background:#0d202b;border-color:#426579}.action b{display:block;font-size:12px;margin-top:4px}.action span{display:block;color:var(--muted);font-size:10px;margin-top:3px;line-height:1.35}.chat{height:330px;display:flex;flex-direction:column}.chat-log{flex:1;overflow:auto;display:grid;align-content:start;gap:7px;padding-right:3px}.msg{font-size:12px;line-height:1.4;padding:8px 9px;border-radius:10px;background:#0a171f}.msg .meta{color:#6f8998;font-size:10px;margin-bottom:2px}.chat-input{display:flex;gap:8px;margin-top:10px}.feed{height:220px;overflow:auto;display:grid;align-content:start;gap:7px}.event{font-size:11px;line-height:1.45;color:#c7d8e2;padding:8px 10px;border-left:2px solid #33515f;background:#09151d;border-radius:0 9px 9px 0}.event.alert{border-left-color:var(--red)}.event.good{border-left-color:var(--green)}.event.info{border-left-color:var(--cyan)}
+.sidebar{display:grid;gap:18px;align-content:start}.me-card{padding:18px}.secret-role{font-size:26px;font-weight:900;margin:3px 0 4px}.secret-role.red{color:var(--red)}.secret-role.cyan{color:var(--cyan)}.mission-box{margin-top:12px;padding:12px;border:1px dashed #3d5d6c;border-radius:13px;background:#08131a}.mission-box strong{display:block;font-size:11px;color:#92acba;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px}.suspect-list{display:grid;gap:7px;margin-top:10px}.suspect{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border:1px solid var(--border);background:#09151d;border-radius:10px}.suspect button{padding:7px 9px}.rules{font-size:11px;color:var(--muted);line-height:1.55}.rules strong{color:#dce9ef}
+.overlay{position:fixed;inset:0;background:rgba(2,5,8,.74);backdrop-filter:blur(12px);display:grid;place-items:center;z-index:40;padding:20px}.modal{width:min(560px,100%);padding:24px}.modal h2{margin:0 0 9px}.modal p{color:var(--muted);line-height:1.5;font-size:13px}.vote-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px}.vote-player{padding:12px;border:1px solid var(--border);background:#09151d;border-radius:12px;display:flex;justify-content:space-between;align-items:center}.result-role{font-size:34px;font-weight:900;margin:8px 0}.big-win{font-size:48px;font-weight:900;margin:4px 0 10px;letter-spacing:-.04em}.win-crew{color:var(--green)}.win-sabo{color:var(--red)}
+.footer{padding:20px 18px;border-top:1px solid var(--border);color:#5f7480;text-align:center;font-size:11px}.link{color:var(--cyan);text-decoration:none}
+@keyframes pulse{50%{opacity:.55}}@media(max-width:900px){.landing-grid,.lobby,.game-shell{grid-template-columns:1fr}.sidebar{grid-template-columns:1fr 1fr}.systems{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){.topbar{padding:0 12px}.main{padding:18px 12px 36px}.hero{padding-top:24px}.role-grid,.center-grid,.vote-grid{grid-template-columns:1fr}.meters{grid-template-columns:1fr}.mission-header{grid-template-columns:1fr}.timer{text-align:left;font-size:26px}.sidebar{grid-template-columns:1fr}.room-code{font-size:38px}.hero h1{font-size:54px}.form-row{flex-direction:column}.actions{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">◈</div>TRUST NO ONE</div>
+    <div id="top-status" class="badge">OFFLINE</div>
+  </header>
+  <main id="app" class="main"></main>
+  <footer class="footer">A social deduction game for 4–10 players • No account • No install • Share the room code</footer>
+</div>
+<div id="toast-root"></div>
+<div id="modal-root"></div>
+<script>
+(() => {
+'use strict';
+const APP_VERSION='0.1.0';
+const ROOM_PREFIX='tn-';
+const MISSION_SECONDS=15*60;
+const START_OXYGEN=100;
+const START_REPAIR=0;
+const EVENT_MIN=40;
+const EVENT_MAX=75;
+const COLORS={cyan:'#54e4ff',green:'#66e7a5',red:'#ff6b7a',amber:'#ffcc67',purple:'#aa91ff'};
+const CREW_ROLES=[
+  {id:'engineer',name:'Engineer',icon:'🔧',desc:'Repairs systems faster.',ability:'Repair systems for +8 repair progress.'},
+  {id:'investigator',name:'Investigator',icon:'🕵️',desc:'Sees subtle evidence.',ability:'Scan a player for anomalous recent activity.'},
+  {id:'medic',name:'Medic',icon:'🩺',desc:'Keeps oxygen stable.',ability:'Stabilize oxygen by +8.'},
+  {id:'security',name:'Security',icon:'🛡️',desc:'Hardens the ship.',ability:'Lock systems and block the next sabotage.'},
+  {id:'operator',name:'Operator',icon:'🧭',desc:'Flexible crew role.',ability:'Repair for +5 progress.'}
+];
+const SABO_ROLES=[
+  {id:'saboteur',name:'Saboteur',icon:'☠️',desc:'Blend in, sabotage, survive.',ability:'Sabotage systems and frame others.'}
+];
+const SYSTEMS=[
+  {id:'reactor',name:'Reactor',icon:'⚡'},
+  {id:'oxygen',name:'Oxygen',icon:'🫁'},
+  {id:'comms',name:'Comms',icon:'📡'},
+  {id:'engines',name:'Engines',icon:'🚀'}
+];
+const EVENTS=[
+  {title:'METEOR SHOWER',text:'A debris wave rattles the hull. Oxygen drops by 5.',oxygen:-5,repair:0,kind:'alert'},
+  {title:'COOLANT LEAK',text:'A coolant leak bleeds emergency oxygen. Oxygen drops by 7.',oxygen:-7,repair:0,kind:'alert'},
+  {title:'POWER SURGE',text:'The ship reroutes power to the work crews. Repair efficiency rises temporarily.',oxygen:0,repair:4,kind:'good'},
+  {title:'STATIC IN THE COMMS',text:'A corrupted burst appears on the comms. Someone may be hiding something.',oxygen:-2,repair:0,kind:'info'},
+  {title:'LOCKDOWN DRILL',text:'Security protocols cycle. The next system interaction leaves extra evidence.',oxygen:0,repair:0,kind:'info'},
+  {title:'MEDBAY SUPPLY DROP',text:'Emergency medical supplies recovered. Oxygen +5.',oxygen:5,repair:0,kind:'good'}
+];
+const SECRET_MISSIONS={crew:[
+  'Complete 3 successful repairs.', 'Keep oxygen above 60 when the timer hits 10:00.', 'Help a teammate survive an emergency vote.', 'Use your role ability twice.', 'Contribute at least 12 repair progress.'
+],sabo:[
+  'Trigger 3 sabotages without being ejected.', 'Drive oxygen below 35 once.', 'Get an innocent player voted out.', 'Frame another player with planted evidence.', 'Survive until the final 60 seconds.'
+]};
+const state={screen:'landing',peer:null,isHost:false,conn:null,playerId:null,roomCode:null,selfName:'',players:{},game:null,logs:[],privateMessages:[]};
+const $=sel=>document.querySelector(sel);
+const app=$('#app');
+const topStatus=$('#top-status');
+function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function rand(n=1){return Math.floor(Math.random()*n)}
+function uid(prefix='p'){return prefix+'-'+Math.random().toString(36).slice(2,9)}
+function roomCode(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+function now(){return Date.now()}
+function showToast(message,kind=''){const el=document.createElement('div');el.className='toast '+kind;el.textContent=message;$('#toast-root').appendChild(el);setTimeout(()=>el.remove(),3200)}
+function setTop(label,good=false){topStatus.textContent=label;topStatus.style.color=good?COLORS.green:'';topStatus.style.borderColor=good?'#2d5f4b':''}
+function roleById(id){return [...CREW_ROLES,...SABO_ROLES].find(r=>r.id===id)}
+function livingPlayers(){return Object.values(state.players).filter(p=>p.connected!==false && !p.eliminated)}
+function sortedPlayers(){return Object.values(state.players).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0))}
+function isSaboteur(p){return p?.role?.faction==='sabo' || p?.roleId==='saboteur'}
+function factionForRole(roleId){return roleId==='saboteur'?'sabo':'crew'}
+function setScreen(screen){state.screen=screen;render()}
+function render(){
+  if(state.screen==='landing') return renderLanding();
+  if(state.screen==='lobby') return renderLobby();
+  if(state.screen==='game') return renderGame();
+  if(state.screen==='result') return renderResult();
+}
+function renderLanding(){
+  setTop('READY');
+  app.innerHTML=`<section class="hero"><div class="eyebrow">REAL-TIME SOCIAL DEDUCTION</div><h1>TRUST<br>NO ONE.</h1><p>4–10 players. One failing ship. Hidden loyalties. Everybody sees the same world — but nobody sees the whole truth.</p><div class="tagline">Repair the ship. Catch the traitors. Lie convincingly.</div></section>
+  <section class="landing-grid">
+    <div class="card pad"><h2>Create a room</h2><p class="muted">You become the Host and the mission controller.</p><div class="form-row"><input id="host-name" class="input" maxlength="18" placeholder="Your codename" autocomplete="off"><button id="create-room" class="btn primary">CREATE ROOM</button></div>
+      <div class="feature-list">
+        <div class="feature"><div class="ic">◉</div><div><strong>Authoritative multiplayer</strong><span>One shared game state keeps oxygen, repairs, votes, eliminations and timers synchronized.</span></div></div>
+        <div class="feature"><div class="ic">◈</div><div><strong>Hidden roles</strong><span>Saboteurs may not even know who else is working against the ship.</span></div></div>
+        <div class="feature"><div class="ic">⌁</div><div><strong>Fast psychological warfare</strong><span>Public accusations plus private whispers create room for alliances, lies and betrayal.</span></div></div>
+      </div>
+    </div>
+    <div class="card pad"><h2>Join a room</h2><p class="muted">Use the code your Host shares with you.</p><div class="form-row"><input id="join-name" class="input" maxlength="18" placeholder="Your codename" autocomplete="off"><input id="join-code" class="input" maxlength="6" placeholder="ROOM CODE" autocomplete="off" style="text-transform:uppercase"><button id="join-room" class="btn">JOIN</button></div>
+      <div style="margin-top:18px"><div class="section-title">ROLE ROSTER</div><div class="role-grid">${CREW_ROLES.slice(0,4).map(r=>`<div class="role"><b>${r.icon} ${r.name}</b><small>${r.desc}</small></div>`).join('')}<div class="role"><b>☠️ Saboteur</b><small>Hidden. Mischievous. Not always coordinated.</small></div></div></div>
+    </div>
+  </section>`;
+  $('#create-room').onclick=()=>createRoom($('#host-name').value.trim());
+  $('#join-room').onclick=()=>joinRoom($('#join-name').value.trim(),$('#join-code').value.trim().toUpperCase());
+}
+function renderLobby(){
+  setTop(`ROOM ${state.roomCode}`,true);
+  const players=sortedPlayers();
+  app.innerHTML=`<div class="lobby"><section class="card pad"><div class="section-title">MISSION CONTROL</div><h2>Room ready</h2><p class="muted">Share this code. The mission unlocks when 4–10 players are connected.</p><div class="room-code">${esc(state.roomCode)}</div><div class="qrhint">No login. No install. Open the same link on each device.</div><div class="form-row" style="margin-top:16px"><button id="copy-code" class="btn">COPY CODE</button><button id="copy-link" class="btn">COPY JOIN LINK</button></div>
+    <div class="players">${players.map(p=>`<div class="player-row ${p.id===state.playerId?'you':''}"><div class="player-main"><div class="avatar">${esc((p.name||'?').slice(0,1).toUpperCase())}</div><div><strong>${esc(p.name)}</strong><div class="muted" style="font-size:10px">${p.id===state.playerId?'YOU':''}</div></div></div>${p.isHost?'<span class="hostdot">HOST</span>':''}</div>`).join('')}</div>
+    ${state.isHost?`<div style="margin-top:18px" class="form-row"><button id="start-game" class="btn primary" ${players.length<4?'disabled':''}>START MISSION ${players.length<4?'(NEED 4+)':''}</button></div>`:`<div class="note">Waiting for the Host to start. Use the lobby chat below to coordinate before the mission.</div>`}
+  </section>
+  <aside class="sidebar"><div class="card pad"><div class="section-title">MISSION RULES</div><div class="rules"><strong>CREW WINS</strong> by reaching 100 repair progress, ejecting every Saboteur, or completing the objective before oxygen fails.<br><br><strong>SABOTEURS WIN</strong> if oxygen hits zero or the timer expires before the ship is repaired.<br><br><strong>ROLES</strong> are private. Saboteurs can act independently and may not know each other.<br><br><strong>VOTE</strong> is a group decision. Ties eject nobody.</div></div><div class="card pad"><div class="section-title">LOBBY CHAT</div><div id="lobby-chat" class="chat"><div class="chat-log" id="lobby-log"></div><div class="chat-input"><input id="lobby-msg" class="input" placeholder="Say something…" maxlength="180"><button id="lobby-send" class="btn">SEND</button></div></div></div></aside></div>`;
+  $('#copy-code').onclick=()=>navigator.clipboard?.writeText(state.roomCode).then(()=>showToast('Room code copied','good'));
+  $('#copy-link').onclick=()=>navigator.clipboard?.writeText(location.href.split('#')[0]+'#join='+state.roomCode).then(()=>showToast('Join link copied','good'));
+  if(state.isHost) $('#start-game').onclick=startGame;
+  setupLobbyChat();
+  updateLobbyChat();
+}
+function setupLobbyChat(){
+  const send=()=>{const v=$('#lobby-msg').value.trim();if(!v)return;sendChat(v,'public');$('#lobby-msg').value=''};
+  $('#lobby-send').onclick=send;$('#lobby-msg').onkeydown=e=>{if(e.key==='Enter')send()};
+}
+function updateLobbyChat(){const log=$('#lobby-log');if(!log)return;log.innerHTML=state.logs.filter(x=>x.type==='chat').slice(-80).map(m=>`<div class="msg"><div class="meta">${esc(m.name)} • ${new Date(m.t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>${esc(m.text)}</div>`).join('');log.scrollTop=log.scrollHeight}
+function renderGame(){
+  setTop(state.roomCode?`ROOM ${state.roomCode}`:'MISSION',true);
+  const g=state.game;if(!g){setScreen('landing');return}
+  const me=state.players[state.playerId]||{};const role=roleById(me.roleId);const sab=isSaboteur(me);
+  app.innerHTML=`<div class="game-shell"><section>
+    <div class="card pad mission-header"><div class="mission-title"><div class="section-title">MISSION 01 • SHIP // ORPHEUS</div><h1>REPAIR THE SHIP</h1><div class="objective">Keep the ship alive long enough to restore all four critical systems. Trust is a resource.</div></div><div><div id="timer" class="timer">${fmtTime(g.remaining)}</div><div class="muted" style="font-size:10px;text-align:right">MISSION CLOCK</div></div></div>
+    <div class="meters"><div class="meter"><div class="meter-top"><span>OXYGEN</span><strong>${Math.max(0,Math.round(g.oxygen))}%</strong></div><div class="bar"><div class="fill oxygen" style="width:${Math.max(0,g.oxygen)}%"></div></div></div><div class="meter"><div class="meter-top"><span>REPAIR PROGRESS</span><strong>${Math.min(100,Math.round(g.repair))}%</strong></div><div class="bar"><div class="fill repair" style="width:${Math.min(100,g.repair)}%"></div></div></div></div>
+    <div class="systems">${SYSTEMS.map(s=>{const v=g.systems[s.id]||100;const cls=v<30?'bad':v<55?'warn':'';return `<div class="system ${cls}"><div class="sicon">${s.icon}</div><b>${s.name}</b><small>${Math.max(0,Math.round(v))}% stability</small></div>`}).join('')}</div>
+    <div class="center-grid"><div class="card pad"><div class="section-title">ACTIONS</div><div class="actions">${actionButtons(me,role,sab,g)}</div></div><div class="card pad"><div class="section-title">LIVE FEED</div><div id="game-feed" class="feed"></div></div></div>
+    <div class="card pad chat" style="margin-top:18px"><div class="section-title">SHIP CHANNEL</div><div class="chat-log" id="game-chat"></div><div class="chat-input"><input id="chat-msg" class="input" placeholder="Say something. Accuse. Defend. Mislead." maxlength="180"><button id="chat-send" class="btn">SEND</button></div></div>
+  </section><aside class="sidebar">
+    <div class="card me-card"><div class="section-title">YOUR IDENTITY</div><div class="secret-role ${sab?'red':'cyan'}">${role?.icon||'◉'} ${role?.name||'Unknown'}</div><div class="muted">Faction: ${sab?'UNKNOWN TO EVERYONE':'CREW'}</div><div class="mission-box"><strong>SECRET MISSION</strong>${esc(me.secretMission||'Stay alive and make good decisions.')}</div>${sab?`<div class="note" style="color:#c48a91">You are a Saboteur. Other Saboteurs, if any, are not revealed to you.</div>`:`<div class="note">Do not reveal role information unless you trust the room.</div>`}</div>
+    <div class="card pad"><div class="section-title">PLAYERS</div><div id="player-panel" class="players"></div></div>
+    <div class="card pad"><div class="section-title">PRIVATE WHISPERS</div><div id="whisper-panel"></div></div>
+  </aside></div>`;
+  renderPlayersPanel();renderFeed();renderGameChat();renderWhispers();
+  wireGameActions();
+}
+function actionButtons(me,role,sab,g){
+  if(me.eliminated)return '<button class="action" disabled><div>👻</div><b>SPECTATING</b><span>You have been ejected. Watch the ship.</span></button>';
+  const cd=(id)=>Math.max(0,Math.ceil(((me.cooldowns?.[id]||0)-now())/1000));
+  let arr=[];
+  arr.push(`<button class="action" data-action="repair" ${cd('repair')?'disabled':''}><div>🔧</div><b>REPAIR</b><span>${cd('repair')?cd('repair')+'s cooldown':'Add repair progress'}</span></button>`);
+  if(role?.id==='medic')arr.push(`<button class="action" data-action="medic" ${cd('medic')?'disabled':''}><div>🩺</div><b>STABILIZE OXYGEN</b><span>${cd('medic')?cd('medic')+'s cooldown':'+8 oxygen'}</span></button>`);
+  if(role?.id==='investigator')arr.push(`<button class="action" data-action="investigate" ${cd('investigate')?'disabled':''}><div>🕵️</div><b>SCAN A PLAYER</b><span>Get a private evidence clue</span></button>`);
+  if(role?.id==='security')arr.push(`<button class="action" data-action="secure" ${cd('secure')?'disabled':''}><div>🛡️</div><b>LOCK SYSTEMS</b><span>Block the next sabotage</span></button>`);
+  if(sab){arr.push(`<button class="action" data-action="sabotage" ${cd('sabotage')?'disabled':''}><div>☠️</div><b>SABOTAGE</b><span>Damage oxygen + repair progress</span></button>`);arr.push(`<button class="action" data-action="frame" ${cd('frame')?'disabled':''}><div>🪤</div><b>PLANT EVIDENCE</b><span>Seed a clue against someone</span></button>`)}
+  arr.push(`<button class="action" data-action="vote" ${g.voteActive||g.voteCooldownUntil>now()?'disabled':''}><div>🗳️</div><b>CALL VOTE</b><span>${g.voteActive?'Vote in progress':g.voteCooldownUntil>now()?Math.ceil((g.voteCooldownUntil-now())/1000)+'s cooldown':'Emergency vote'}</span></button>`);
+  return arr.join('');
+}
+function wireGameActions(){
+  document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>act(b.dataset.action));
+  const send=()=>{const v=$('#chat-msg')?.value.trim();if(!v)return;sendChat(v,'public');$('#chat-msg').value=''};
+  $('#chat-send').onclick=send;$('#chat-msg').onkeydown=e=>{if(e.key==='Enter')send()};
+}
+function renderPlayersPanel(){const el=$('#player-panel');if(!el)return;el.innerHTML=sortedPlayers().map(p=>`<div class="player-row ${p.id===state.playerId?'you':''}"><div class="player-main"><div class="avatar">${p.eliminated?'👻':esc((p.name||'?').slice(0,1).toUpperCase())}</div><div><strong>${esc(p.name)}</strong><div class="muted" style="font-size:10px">${p.isHost?'HOST • ':''}${p.connected===false?'DISCONNECTED • ':''}${p.eliminated?'EJECTED':''}</div></div></div><button class="btn" data-whisper="${esc(p.id)}" ${p.id===state.playerId||p.eliminated?'disabled':''}>WHISPER</button></div>`).join('');document.querySelectorAll('[data-whisper]').forEach(b=>b.onclick=()=>whisperTo(b.dataset.whisper))}
+function renderWhispers(){const el=$('#whisper-panel');if(!el)return;const msgs=state.privateMessages.slice(-20);el.innerHTML=msgs.length?msgs.map(m=>`<div class="msg" style="margin-bottom:7px"><div class="meta">PRIVATE • ${esc(m.name)}</div>${esc(m.text)}</div>`).join(''):'<div class="note">Select a living player and whisper directly. Private whispers use a peer-to-peer connection.</div>'}
+function renderFeed(){const el=$('#game-feed');if(!el)return;const feed=state.logs.filter(x=>x.type==='event').slice(-80);el.innerHTML=feed.map(m=>`<div class="event ${m.kind||''}"><strong>${esc(m.title||'EVENT')}</strong> — ${esc(m.text)}</div>`).join('');el.scrollTop=el.scrollHeight}
+function renderGameChat(){const el=$('#game-chat');if(!el)return;const feed=state.logs.filter(x=>x.type==='chat').slice(-80);el.innerHTML=feed.map(m=>`<div class="msg"><div class="meta">${esc(m.name)} • ${new Date(m.t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>${esc(m.text)}</div>`).join('');el.scrollTop=el.scrollHeight}
+function fmtTime(seconds){seconds=Math.max(0,Math.ceil(seconds));const m=Math.floor(seconds/60),s=seconds%60;return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+function addLog(type,payload){state.logs.push({type,t:now(),...payload});if(state.logs.length>300)state.logs.splice(0,50)}
+function broadcast(msg){if(!state.isHost)return;Object.values(state.players).forEach(p=>{if(p.id===state.playerId||!p.conn||p.connected===false)return;try{p.conn.send(msg)}catch{}})}
+function sendState(){if(!state.isHost)return;const safePlayers={};for(const p of Object.values(state.players)){safePlayers[p.id]={...p,conn:undefined,roleId:undefined,faction:undefined,secretMission:undefined,missionState:undefined,lastSabotageAt:undefined}}
+  const publicGame={...state.game,plantedEvidence:undefined};
+  const base={t:'state',roomCode:state.roomCode,players:safePlayers,game:publicGame,logs:state.logs};
+  Object.values(state.players).forEach(p=>{if(p.id===state.playerId||!p.conn||p.connected===false)return;const mine={...base,me:{roleId:p.roleId,secretMission:p.secretMission,eliminated:p.eliminated,cooldowns:p.cooldowns||{}}};try{p.conn.send(mine)}catch{}});
+  refreshPublic();
+}
+function refreshPublic(){render();}
+function receiveState(msg){
+  state.roomCode=msg.roomCode;state.players=msg.players||{};state.game=msg.game||null;state.logs=msg.logs||[];if(msg.me){const existing=state.players[state.playerId]||{};state.players[state.playerId]={...existing,...msg.me,roleId:msg.me.roleId,secretMission:msg.me.secretMission}};setScreen(msg.game?.phase==='ended'?'result':msg.game?'game':'lobby');if(msg.me)state.players[state.playerId]={...state.players[state.playerId],roleId:msg.me.roleId,secretMission:msg.me.secretMission,eliminated:msg.me.eliminated,cooldowns:msg.me.cooldowns||{}}}
+function createRoom(name){if(!name){showToast('Enter a codename','warn');return}state.selfName=name;state.isHost=true;state.playerId=uid();state.roomCode=roomCode();setTop('CONNECTING…');try{state.peer=new Peer(ROOM_PREFIX+state.roomCode.toLowerCase());state.peer.on('open',()=>{state.players[state.playerId]={id:state.playerId,name,joinedAt:now(),isHost:true,connected:true,conn:null,cooldowns:{}};setScreen('lobby');showToast('Room created. Share the code.','good')});state.peer.on('connection',conn=>attachHostConnection(conn));state.peer.on('error',e=>{console.error(e);showToast('Connection error: '+(e.type||'unknown'),'bad')});state.peer.on('disconnected',()=>setTop('NETWORK OFFLINE'));state.peer.on('close',()=>setTop('CLOSED'));}catch(e){console.error(e);showToast('Could not start networking','bad')}}
+function attachHostConnection(conn){conn.on('open',()=>{});conn.on('data',msg=>{if(msg?.t==='join'){if(Object.keys(state.players).length>=10){conn.send({t:'full'});return}const id=msg.id||uid();state.players[id]={id,name:String(msg.name||'Player').slice(0,18),joinedAt:now(),isHost:false,connected:true,conn,peerId:msg.peerId,cooldowns:{}};conn.playerId=id;conn.send({t:'welcome',roomCode:state.roomCode,playerId:id,host:true});addLog('event',{title:'PLAYER JOINED',text:state.players[id].name+' joined the crew.',kind:'info'});sendState();showToast(state.players[id].name+' joined','good');return}handleHostMessage(conn,msg)});conn.on('close',()=>{const p=Object.values(state.players).find(x=>x.conn===conn);if(p){p.connected=false;addLog('event',{title:'CONNECTION LOST',text:p.name+' disconnected.',kind:'alert'});sendState()}})}
+function handleHostMessage(conn,msg){const p=Object.values(state.players).find(x=>x.conn===conn);if(!p)return;
+  if(msg?.t==='chat'){if(typeof msg.text==='string')sendChat(msg.text.slice(0,180),'public',p.id);return}
+  if(msg?.t==='action'){hostAction(p,msg.action,msg.targetId);return}
+  if(msg?.t==='vote'){castVote(p,msg.targetId);return}
+  if(msg?.t==='whisper'){const target=state.players[msg.targetId];if(target?.peerId&&msg.text){sendPrivateViaPeer(p,target,msg.text.slice(0,180));}}
+}
+function joinRoom(name,code){if(!name||!code||code.length!==6){showToast('Enter your name and the 6-character room code.','warn');return}state.selfName=name;state.roomCode=code.toUpperCase();state.isHost=false;state.playerId=uid();state.peer=new Peer();setTop('CONNECTING…');state.peer.on('open',peerId=>{const conn=state.peer.connect(ROOM_PREFIX+state.roomCode.toLowerCase(),{reliable:true});state.conn=conn;conn.on('open',()=>{conn.send({t:'join',id:state.playerId,name,peerId});});conn.on('data',msg=>{if(msg?.t==='welcome'){state.playerId=msg.playerId;setScreen('lobby');setTop(`ROOM ${state.roomCode}`,true);showToast('Connected to room','good')}else if(msg?.t==='state')receiveState(msg);else if(msg?.t==='private')receivePrivate(msg);else if(msg?.t==='votePrompt')openVoteModal(msg);else if(msg?.t==='evidence')showToast(msg.text,'good');else if(msg?.t==='full')showToast('Room is full.','bad')});conn.on('close',()=>{showToast('Host connection lost.','bad');setTop('DISCONNECTED')});conn.on('error',e=>showToast('Network error: '+(e.type||'unknown'),'bad'))});state.peer.on('error',e=>{console.error(e);showToast('Could not join room. Check the code.','bad')})}
+function sendChat(text,type='public',fromId=state.playerId){const clean=String(text||'').trim().slice(0,180);if(!clean)return;if(state.isHost){const p=state.players[fromId]||state.players[state.playerId];addLog('chat',{name:p?.name||state.selfName,text:clean});broadcast({t:'chat',name:p?.name||state.selfName,text:clean});renderGameChat();updateLobbyChat();}else if(state.conn){state.conn.send({t:'chat',text:clean})}}
+function whisperTo(targetId){const target=state.players[targetId];if(!target||target.eliminated)return;const text=prompt('Whisper privately to '+target.name+':');if(!text)return;if(state.isHost){sendPrivateViaPeer(state.players[state.playerId],target,text)}else if(target.peerId){sendPrivateViaPeer(state.players[state.playerId],target,text)}else showToast('That player is unavailable for whispers.','warn')}
+function sendPrivateViaPeer(from,to,text){if(!from?.peerId||!to?.peerId){showToast('Private whisper unavailable right now.','warn');return}try{const conn=state.peer.connect(to.peerId,{reliable:true});conn.on('open',()=>{conn.send({t:'private',name:from.name,text:String(text).slice(0,180)})});setTimeout(()=>{try{conn.close()}catch{}},2500)}catch{showToast('Whisper failed','bad')}}
+function receivePrivate(msg){state.privateMessages.push({t:now(),name:msg.name||'Unknown',text:msg.text||''});if(state.privateMessages.length>40)state.privateMessages.splice(0,10);showToast('New private whisper from '+(msg.name||'someone'),'good');renderWhispers()}
+function startGame(){if(!state.isHost||Object.keys(state.players).length<4)return;const players=sortedPlayers();const sabCount=players.length>=9?3:players.length>=6?2:1;const shuffled=[...players].sort(()=>Math.random()-.5);const sabIds=new Set(shuffled.slice(0,sabCount).map(p=>p.id));const crewPool=[...CREW_ROLES];players.forEach((p,i)=>{if(sabIds.has(p.id)){p.roleId='saboteur';p.faction='sabo';p.secretMission=SECRET_MISSIONS.sabo[rand(SECRET_MISSIONS.sabo.length)]}else{const role=crewPool[(i+rand(crewPool.length))%crewPool.length];p.roleId=role.id;p.faction='crew';p.secretMission=SECRET_MISSIONS.crew[rand(SECRET_MISSIONS.crew.length)]}p.eliminated=false;p.cooldowns={};p.peerId=p.peerId||null});state.game={phase:'playing',remaining:MISSION_SECONDS,oxygen:START_OXYGEN,repair:START_REPAIR,systems:{reactor:100,oxygen:100,comms:100,engines:100},securityLockUntil:0,lastActionAt:0,nextEventAt:now()+EVENT_MIN*1000+rand((EVENT_MAX-EVENT_MIN)*1000),voteActive:false,voteEndsAt:0,votes:{},voteCooldownUntil:0,winner:null,winnerReason:null};addLog('event',{title:'MISSION STARTED',text:'The ship is failing. Someone in this room has a different objective.',kind:'info'});sendState();showToast('Mission started. Trust no one.','good');startHostLoop()}
+let hostLoop=null;
+function startHostLoop(){if(hostLoop)clearInterval(hostLoop);hostLoop=setInterval(()=>{if(!state.isHost||!state.game||state.game.phase!=='playing'){clearInterval(hostLoop);return}const dt=1;const g=state.game;g.remaining=Math.max(0,g.remaining-dt);g.oxygen=Math.max(0,g.oxygen-0.055);if(now()>=g.nextEventAt){triggerEvent();g.nextEventAt=now()+(EVENT_MIN+rand(EVENT_MAX-EVENT_MIN))*1000}if(g.voteActive&&now()>=g.voteEndsAt){resolveVote()}checkWinConditions();if(Math.floor(g.remaining)%2===0)sendState();else refreshPublic()},1000)}
+function triggerEvent(){const g=state.game,e=EVENTS[rand(EVENTS.length)];g.oxygen=Math.max(0,g.oxygen+(e.oxygen||0));g.repair=Math.max(0,g.repair+(e.repair||0));addLog('event',{title:e.title,text:e.text,kind:e.kind});broadcast({t:'event',title:e.title,text:e.text});sendState()}
+function act(action){if(state.isHost)hostAction(state.players[state.playerId],action);else state.conn?.send({t:'action',action});}
+function hostAction(p,action,targetId){if(!state.isHost||!state.game||state.game.phase!=='playing'||!p||p.eliminated)return;const g=state.game;const nowv=now();const cd=p.cooldowns||{};if((cd[action]||0)>nowv){return}const alive=livingPlayers();
+  if(action==='repair'){g.repair=Math.min(100,g.repair+(p.roleId==='engineer'?8:p.roleId==='operator'?5:4));p.cooldowns.repair=nowv+8000;addLog('event',{title:'REPAIR',text:p.name+' contributes to ship repairs.',kind:'good'});missionProgress(p,'repair',1)}
+  else if(action==='medic'&&p.roleId==='medic'){g.oxygen=Math.min(100,g.oxygen+8);p.cooldowns.medic=nowv+12000;addLog('event',{title:'MEDBAY STABILIZED',text:p.name+' restores emergency oxygen.',kind:'good'});missionProgress(p,'ability',1)}
+  else if(action==='investigate'&&p.roleId==='investigator'){p.cooldowns.investigate=nowv+12000;const target=pickTarget(targetId,p);const suspicious=target&& (target.lastSabotageAt&&nowv-target.lastSabotageAt<45000 || g.plantedEvidence?.[target.id]);const text=suspicious?`${target.name} shows anomalous activity. That does not prove a Saboteur.`:`${target.name} shows no recent anomalous activity. That does not prove innocence.`;sendToPlayer(p,{t:'evidence',text});addLog('event',{title:'SCAN COMPLETE',text:'An investigator ran a private scan.',kind:'info'});missionProgress(p,'ability',1)}
+  else if(action==='secure'&&p.roleId==='security'){p.cooldowns.secure=nowv+15000;g.securityLockUntil=nowv+18000;addLog('event',{title:'SECURITY LOCK',text:p.name+' hardens critical systems.',kind:'info'});missionProgress(p,'ability',1)}
+  else if(action==='sabotage'&&isSaboteur(p)){p.cooldowns.sabotage=nowv+11000;if(g.securityLockUntil>nowv){addLog('event',{title:'SABOTAGE BLOCKED',text:'A sabotage attempt was blocked by Security.',kind:'good'})}else{g.oxygen=Math.max(0,g.oxygen-8);g.repair=Math.max(0,g.repair-5);const sys=SYSTEMS[rand(SYSTEMS.length)].id;g.systems[sys]=Math.max(0,(g.systems[sys]||100)-18);p.lastSabotageAt=nowv;addLog('event',{title:'CRITICAL FAILURE',text:'A critical system was sabotaged. No culprit identified.',kind:'alert'});broadcast({t:'alert',title:'CRITICAL FAILURE'})}missionProgress(p,'sabotage',1)}
+  else if(action==='frame'&&isSaboteur(p)){p.cooldowns.frame=nowv+17000;const target=pickTarget(targetId,p);if(target){g.plantedEvidence=g.plantedEvidence||{};g.plantedEvidence[target.id]=(g.plantedEvidence[target.id]||0)+1;addLog('event',{title:'EVIDENCE FOUND',text:'Security discovers suspicious evidence tied to someone in the room.',kind:'info'})}missionProgress(p,'frame',1)}
+  else if(action==='vote'){if(g.voteActive||g.voteCooldownUntil>nowv)return;g.voteActive=true;g.voteEndsAt=nowv+25000;g.votes={};g.voteCooldownUntil=nowv+60000;addLog('event',{title:'EMERGENCY VOTE',text:p.name+' called a vote. Discuss fast.',kind:'alert'});broadcast({t:'votePrompt',endsAt:g.voteEndsAt,calledBy:p.name});openVoteModal({endsAt:g.voteEndsAt});}
+  else return;
+  sendState();
+}
+function pickTarget(targetId,from){const p=targetId?state.players[targetId]:livingPlayers().find(x=>x.id!==from.id);return p&&p.id!==from.id&&!p.eliminated?p:null}
+function missionProgress(p,kind,amount){p.missionState=p.missionState||{};p.missionState[kind]=(p.missionState[kind]||0)+amount}
+function castVote(p,targetId){if(!state.isHost||!state.game||!state.game.voteActive||p.eliminated)return;if(!targetId||!state.players[targetId]||state.players[targetId].eliminated)return;state.game.votes[p.id]=targetId;addLog('event',{title:'VOTE CAST',text:p.name+' locked in a vote.',kind:'info'});sendState();const alive=livingPlayers();if(Object.keys(state.game.votes).length>=alive.length)resolveVote()}
+function resolveVote(){const g=state.game;if(!g?.voteActive)return;g.voteActive=false;const counts={};Object.values(g.votes).forEach(id=>counts[id]=(counts[id]||0)+1);const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);const top=entries[0];if(!top){addLog('event',{title:'VOTE FAILED',text:'No one voted.',kind:'info'});sendState();return}const tied=entries.filter(x=>x[1]===top[1]).length>1;if(tied){addLog('event',{title:'VOTE TIED',text:'The room cannot agree. Nobody is ejected.',kind:'info'});sendState();return}const target=state.players[top[0]];if(target){target.eliminated=true;addLog('event',{title:'EJECTED',text:target.name+' was ejected by a '+top[1]+' vote. Their role was '+roleById(target.roleId).name+'.',kind:isSaboteur(target)?'good':'alert'});broadcast({t:'eject',name:target.name,role:roleById(target.roleId).name})}checkWinConditions();sendState()}
+function checkWinConditions(){const g=state.game;if(!g||g.phase!=='playing')return;const sabos=livingPlayers().filter(isSaboteur);if(g.oxygen<=0){endGame('sabo','Oxygen reached zero. The Saboteurs win.');return}if(g.repair>=100){endGame('crew','All critical systems restored. Crew wins.');return}if(sabos.length===0){endGame('crew','Every Saboteur was ejected. Crew wins.');return}if(g.remaining<=0){endGame('sabo','The mission clock expired before the ship was repaired. Saboteurs win.')}}
+function endGame(winner,reason){if(state.game.phase==='ended')return;state.game.phase='ended';state.game.winner=winner;state.game.winnerReason=reason;addLog('event',{title:'MISSION OVER',text:reason,kind:winner==='crew'?'good':'alert'});sendState();setScreen('result')}
+function openVoteModal(msg){if(!state.game||state.game.phase!=='playing')return;const alive=livingPlayers();$('#modal-root').innerHTML=`<div class="overlay"><div class="modal card"><div class="section-title">EMERGENCY VOTE</div><h2>Who do you eject?</h2><p>Choose one living player. Ties eject nobody. The target’s role is revealed after the decision.</p><div class="vote-grid">${alive.filter(p=>p.id!==state.playerId||!p.eliminated).map(p=>`<div class="vote-player"><div><strong>${esc(p.name)}</strong><div class="muted" style="font-size:10px">${p.isHost?'HOST':''}</div></div><button class="btn danger" data-vote="${esc(p.id)}">VOTE</button></div>`).join('')}</div><div class="note" id="vote-countdown"></div></div></div>`;document.querySelectorAll('[data-vote]').forEach(b=>b.onclick=()=>{const id=b.dataset.vote;if(state.isHost)castVote(state.players[state.playerId],id);else state.conn?.send({t:'vote',targetId:id});$('#modal-root').innerHTML='';});const timer=setInterval(()=>{const el=$('#vote-countdown');if(!el){clearInterval(timer);return}const s=Math.max(0,Math.ceil((msg.endsAt-now())/1000));el.textContent='Vote closes in '+s+'s';if(s<=0){clearInterval(timer);$('#modal-root').innerHTML=''}},250)}
+function sendToPlayer(p,msg){if(p.id===state.playerId){if(msg.t==='evidence')showToast(msg.text,'good');return}try{p.conn?.send(msg)}catch{}}
+window.addEventListener('message',e=>{});
+// Accept private peer-to-peer data on every client, including the host.
+function attachPeerPrivateHandler(){if(!state.peer)return;state.peer.on('connection',conn=>{conn.on('data',msg=>{if(msg?.t==='private')receivePrivate(msg)})})}
+// Wrap peer creation handlers so direct whispers can arrive.
+const _createRoom=createRoom;
+// The functions above are declarations; attach handler after peer creation through polling is safer for the simple static MVP.
+setInterval(()=>{if(state.peer&&!state.peer.__privateBound){attachPeerPrivateHandler();state.peer.__privateBound=true}},800);
+// Make host/client states render smoothly on countdown without resending every second.
+setInterval(()=>{if(state.screen==='game'&&state.game){const t=$('#timer');if(t){t.textContent=fmtTime(state.game.remaining);t.classList.toggle('danger',state.game.remaining<60)}const me=state.players[state.playerId];if(me){const ac=$('.actions');if(ac){document.querySelectorAll('[data-action]').forEach(b=>{const a=b.dataset.action;const rem=Math.max(0,Math.ceil(((me.cooldowns?.[a]||0)-now())/1000));b.disabled=rem>0||a==='vote'&&(state.game.voteActive||state.game.voteCooldownUntil>now());const span=b.querySelector('span');if(span&&rem>0)span.textContent=rem+'s cooldown'})}}}},500);
+// Handle deep link #join=CODE.
+const hash=location.hash.match(/join=([A-Za-z0-9]{6})/);render();if(hash){setTimeout(()=>{$('#join-code')?.focus();$('#join-code').value=hash[1].toUpperCase()},50)}
+})();
+</script>
+</body>
+</html>
